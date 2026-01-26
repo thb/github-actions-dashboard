@@ -54,7 +54,7 @@ export function ProjectCard({
   const runningCount = statuses.filter((s) => s === "running").length
 
   return (
-    <Card>
+    <Card className="h-fit">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 py-3 px-4">
         <div className="flex items-center gap-2">
           <div
