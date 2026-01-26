@@ -330,7 +330,8 @@ function ProjectDetailPage() {
                   <select
                     value={selectedSource}
                     onChange={(e) => setSelectedSource(e.target.value)}
-                    className="w-full h-10 px-3 py-2 rounded-md border border-input bg-background text-sm appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                    className="w-full h-10 px-3 py-2 rounded-md border border-input bg-background text-foreground text-sm appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                    style={{ colorScheme: "dark" }}
                   >
                     <option value="personal">Personal repositories</option>
                     {orgs.map((org) => (
