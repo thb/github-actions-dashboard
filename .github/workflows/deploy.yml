@@ -65,5 +65,5 @@ jobs:
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_KEY }}
           script: |
-            cd ~/docker/actions-dashboard
+            cd ~/docker/github-actions-dashboard
             ./deploy.sh
