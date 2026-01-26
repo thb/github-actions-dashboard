@@ -34,9 +34,6 @@ RUN npm ci --omit=dev
 
 # Copy built files
 COPY --from=builder /app/.output ./.output
-COPY --from=builder /app/drizzle ./drizzle
-COPY --from=builder /app/drizzle.config.ts ./drizzle.config.ts
-COPY --from=builder /app/src/db ./src/db
 
 # Create data directory for SQLite
 RUN mkdir -p /data
@@ -46,5 +43,4 @@ ENV DATABASE_URL=file:/data/db.sqlite
 
 EXPOSE 3000
 
-# Run migrations and start the app
-CMD ["sh", "-c", "npx drizzle-kit push --config=drizzle.config.ts && node .output/server/index.mjs"]
+CMD ["node", ".output/server/index.mjs"]
