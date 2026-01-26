@@ -1,7 +1,16 @@
 import { createServerFn } from "@tanstack/react-start"
 import { db, projects, repos, type Project, type Repo } from "@/db"
 import { eq, asc } from "drizzle-orm"
-import { searchRepos, getLatestWorkflowRun, type WorkflowRun } from "./github"
+import {
+  searchRepos,
+  getLatestWorkflowRun,
+  getUserOrgs,
+  getPersonalRepos,
+  getOrgRepos,
+  type WorkflowRun,
+  type GitHubOrg,
+  type GitHubRepo,
+} from "./github"
 
 // List all projects with their repos
 export const getProjects = createServerFn({ method: "GET" }).handler(
@@ -106,6 +115,27 @@ export const searchGitHubRepos = createServerFn({ method: "GET" })
   .handler(async ({ data: query }) => {
     if (query.length < 2) return []
     return searchRepos(query)
+  })
+
+// Get user's GitHub organizations
+export const getGitHubOrgs = createServerFn({ method: "GET" }).handler(
+  async () => {
+    return getUserOrgs()
+  }
+)
+
+// Get user's personal repositories
+export const getGitHubUserRepos = createServerFn({ method: "GET" }).handler(
+  async () => {
+    return getPersonalRepos()
+  }
+)
+
+// Get repositories for a specific org
+export const getGitHubOrgRepos = createServerFn({ method: "GET" })
+  .inputValidator((org: string) => org)
+  .handler(async ({ data: org }) => {
+    return getOrgRepos(org)
   })
 
 // Get workflow runs for all repos in a project

@@ -25,7 +25,7 @@ const Dialog = ({ open, onOpenChange, children }: DialogProps) => {
   return (
     <dialog
       ref={dialogRef}
-      className="backdrop:bg-black/50 bg-transparent p-0 max-w-lg w-full"
+      className="backdrop:bg-black/50 bg-transparent p-0 max-w-lg w-full m-auto"
       onClose={() => onOpenChange(false)}
       onClick={(e) => {
         if (e.target === e.currentTarget) onOpenChange(false)

@@ -8,7 +8,9 @@ import {
   deleteProject,
   addRepoToProject,
   removeRepoFromProject,
-  searchGitHubRepos,
+  getGitHubOrgs,
+  getGitHubUserRepos,
+  getGitHubOrgRepos,
 } from "@/lib/projects.server"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -28,7 +30,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog"
-import { ArrowLeft, Plus, Trash2, Search, Loader2 } from "lucide-react"
+import { ArrowLeft, Plus, Trash2, Loader2, ChevronDown, Building2, User } from "lucide-react"
 import type { GitHubRepo } from "@/lib/github"
 
 export const Route = createFileRoute("/projects/$id")({
@@ -79,11 +81,37 @@ function ProjectDetailPage() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [showAddRepoDialog, setShowAddRepoDialog] = useState(false)
 
-  // Repo search state
-  const [searchQuery, setSearchQuery] = useState("")
-  const [isSearching, setIsSearching] = useState(false)
-  const [searchResults, setSearchResults] = useState<GitHubRepo[]>([])
+  // Repo selection state
+  const [selectedSource, setSelectedSource] = useState<string>("personal")
+  const [filterQuery, setFilterQuery] = useState("")
   const [isAddingRepo, setIsAddingRepo] = useState<string | null>(null)
+
+  // Fetch orgs
+  const { data: orgs = [] } = useQuery({
+    queryKey: ["github-orgs"],
+    queryFn: () => getGitHubOrgs(),
+    enabled: showAddRepoDialog,
+  })
+
+  // Fetch repos based on selected source
+  const { data: sourceRepos = [], isLoading: isLoadingRepos } = useQuery({
+    queryKey: ["github-repos", selectedSource],
+    queryFn: () =>
+      selectedSource === "personal"
+        ? getGitHubUserRepos()
+        : getGitHubOrgRepos({ data: selectedSource }),
+    enabled: showAddRepoDialog,
+  })
+
+  // Filter repos by query and exclude already added ones
+  const existingRepos = new Set(project?.repos.map((r) => r.fullName) || [])
+  const filteredRepos = sourceRepos
+    .filter((repo) => !existingRepos.has(repo.full_name))
+    .filter((repo) =>
+      filterQuery
+        ? repo.full_name.toLowerCase().includes(filterQuery.toLowerCase())
+        : true
+    )
 
   if (!project) return null
 
@@ -108,22 +136,6 @@ function ProjectDetailPage() {
     }
   }
 
-  const handleSearch = async () => {
-    if (searchQuery.length < 2) return
-
-    setIsSearching(true)
-    try {
-      const results = await searchGitHubRepos({ data: searchQuery })
-      // Filter out repos already in the project
-      const existingRepos = new Set(project.repos.map((r) => r.fullName))
-      setSearchResults(results.filter((r) => !existingRepos.has(r.full_name)))
-    } catch (error) {
-      console.error("Search failed:", error)
-    } finally {
-      setIsSearching(false)
-    }
-  }
-
   const handleAddRepo = async (repo: GitHubRepo) => {
     setIsAddingRepo(repo.full_name)
     try {
@@ -134,7 +146,6 @@ function ProjectDetailPage() {
           defaultBranch: repo.default_branch,
         },
       })
-      setSearchResults((prev) => prev.filter((r) => r.full_name !== repo.full_name))
       refetch()
     } finally {
       setIsAddingRepo(null)
@@ -307,56 +318,85 @@ function ProjectDetailPage() {
             <DialogHeader>
               <DialogTitle>Add Repository</DialogTitle>
               <DialogDescription>
-                Search for repositories to add to this project
+                Select a source and choose repositories to add
               </DialogDescription>
             </DialogHeader>
 
             <div className="space-y-4">
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Search repositories..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                />
-                <Button onClick={handleSearch} disabled={isSearching}>
-                  {isSearching ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Search className="h-4 w-4" />
-                  )}
-                </Button>
+              {/* Source selector */}
+              <div className="space-y-2">
+                <Label>Source</Label>
+                <div className="relative">
+                  <select
+                    value={selectedSource}
+                    onChange={(e) => setSelectedSource(e.target.value)}
+                    className="w-full h-10 px-3 py-2 rounded-md border border-input bg-background text-sm appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                  >
+                    <option value="personal">Personal repositories</option>
+                    {orgs.map((org) => (
+                      <option key={org.id} value={org.login}>
+                        {org.login}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="absolute right-3 top-3 h-4 w-4 pointer-events-none text-muted-foreground" />
+                </div>
               </div>
 
+              {/* Filter input */}
+              <div className="space-y-2">
+                <Label>Filter</Label>
+                <Input
+                  placeholder="Filter repositories..."
+                  value={filterQuery}
+                  onChange={(e) => setFilterQuery(e.target.value)}
+                />
+              </div>
+
+              {/* Repos list */}
               <div className="max-h-[300px] overflow-y-auto space-y-2">
-                {searchResults.map((repo) => (
-                  <div
-                    key={repo.id}
-                    className="flex items-center justify-between p-3 rounded-lg border hover:bg-accent/50"
-                  >
-                    <div>
-                      <p className="font-medium">{repo.full_name}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {repo.private ? "Private" : "Public"} · {repo.default_branch}
-                      </p>
-                    </div>
-                    <Button
-                      size="sm"
-                      onClick={() => handleAddRepo(repo)}
-                      disabled={isAddingRepo === repo.full_name}
-                    >
-                      {isAddingRepo === repo.full_name ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <Plus className="h-4 w-4" />
-                      )}
-                    </Button>
+                {isLoadingRepos ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
                   </div>
-                ))}
-                {searchResults.length === 0 && searchQuery.length >= 2 && !isSearching && (
+                ) : filteredRepos.length === 0 ? (
                   <p className="text-center text-muted-foreground py-4">
-                    No repositories found
+                    {sourceRepos.length === 0
+                      ? "No repositories found"
+                      : "All repositories are already added"}
                   </p>
+                ) : (
+                  filteredRepos.map((repo) => (
+                    <div
+                      key={repo.id}
+                      className="flex items-center justify-between p-3 rounded-lg border hover:bg-accent/50"
+                    >
+                      <div className="flex items-center gap-3">
+                        {selectedSource === "personal" ? (
+                          <User className="h-4 w-4 text-muted-foreground" />
+                        ) : (
+                          <Building2 className="h-4 w-4 text-muted-foreground" />
+                        )}
+                        <div>
+                          <p className="font-medium">{repo.name}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {repo.private ? "Private" : "Public"} · {repo.default_branch}
+                          </p>
+                        </div>
+                      </div>
+                      <Button
+                        size="sm"
+                        onClick={() => handleAddRepo(repo)}
+                        disabled={isAddingRepo === repo.full_name}
+                      >
+                        {isAddingRepo === repo.full_name ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Plus className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
+                  ))
                 )}
               </div>
             </div>

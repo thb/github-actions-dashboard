@@ -89,6 +89,13 @@ export async function getUserRepos(): Promise<GitHubRepo[]> {
   )
 }
 
+// Get only repos owned by the user (personal repos)
+export async function getPersonalRepos(): Promise<GitHubRepo[]> {
+  return githubFetch<GitHubRepo[]>(
+    "/user/repos?per_page=100&sort=pushed&affiliation=owner"
+  )
+}
+
 export async function getUserOrgs(): Promise<GitHubOrg[]> {
   return githubFetch<GitHubOrg[]>("/user/orgs")
 }
