@@ -23,7 +23,7 @@ export const getProjects = createServerFn({ method: "GET" }).handler(
 
 // Get a single project
 export const getProject = createServerFn({ method: "GET" })
-  .validator((id: number) => id)
+  .inputValidator((id: number) => id)
   .handler(async ({ data: id }) => {
     const project = await db.query.projects.findFirst({
       where: eq(projects.id, id),
@@ -41,7 +41,7 @@ export const getProject = createServerFn({ method: "GET" })
 
 // Create a new project
 export const createProject = createServerFn({ method: "POST" })
-  .validator((data: { name: string; color?: string }) => data)
+  .inputValidator((data: { name: string; color?: string }) => data)
   .handler(async ({ data }) => {
     const result = await db
       .insert(projects)
@@ -53,7 +53,7 @@ export const createProject = createServerFn({ method: "POST" })
 
 // Update a project
 export const updateProject = createServerFn({ method: "POST" })
-  .validator((data: { id: number; name?: string; color?: string }) => data)
+  .inputValidator((data: { id: number; name?: string; color?: string }) => data)
   .handler(async ({ data }) => {
     const { id, ...updates } = data
     const result = await db
@@ -67,7 +67,7 @@ export const updateProject = createServerFn({ method: "POST" })
 
 // Delete a project
 export const deleteProject = createServerFn({ method: "POST" })
-  .validator((id: number) => id)
+  .inputValidator((id: number) => id)
   .handler(async ({ data: id }) => {
     await db.delete(projects).where(eq(projects.id, id))
     return { success: true }
@@ -75,7 +75,7 @@ export const deleteProject = createServerFn({ method: "POST" })
 
 // Add a repo to a project
 export const addRepoToProject = createServerFn({ method: "POST" })
-  .validator(
+  .inputValidator(
     (data: { projectId: number; fullName: string; defaultBranch?: string }) =>
       data
   )
@@ -94,7 +94,7 @@ export const addRepoToProject = createServerFn({ method: "POST" })
 
 // Remove a repo from a project
 export const removeRepoFromProject = createServerFn({ method: "POST" })
-  .validator((id: number) => id)
+  .inputValidator((id: number) => id)
   .handler(async ({ data: id }) => {
     await db.delete(repos).where(eq(repos.id, id))
     return { success: true }
@@ -102,7 +102,7 @@ export const removeRepoFromProject = createServerFn({ method: "POST" })
 
 // Search GitHub repos
 export const searchGitHubRepos = createServerFn({ method: "GET" })
-  .validator((query: string) => query)
+  .inputValidator((query: string) => query)
   .handler(async ({ data: query }) => {
     if (query.length < 2) return []
     return searchRepos(query)
@@ -110,7 +110,7 @@ export const searchGitHubRepos = createServerFn({ method: "GET" })
 
 // Get workflow runs for all repos in a project
 export const getProjectWorkflowRuns = createServerFn({ method: "GET" })
-  .validator((projectId: number) => projectId)
+  .inputValidator((projectId: number) => projectId)
   .handler(async ({ data: projectId }) => {
     const projectRepos = await db.query.repos.findMany({
       where: eq(repos.projectId, projectId),
