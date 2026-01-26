@@ -106,7 +106,7 @@ function Dashboard() {
       </header>
 
       {/* Main content */}
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-4">
         {projects.length === 0 ? (
           <div className="text-center py-16">
             <Github className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
@@ -122,7 +122,7 @@ function Dashboard() {
             </Link>
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-4">
             {projects.map((project) => (
               <ProjectCard
                 key={project.id}

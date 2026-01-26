@@ -27,12 +27,12 @@ export function RepoStatus({
   const [owner, repo] = fullName.split("/")
 
   return (
-    <div className="flex items-center justify-between p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors">
-      <div className="flex items-center gap-4 flex-1 min-w-0">
+    <div className="flex items-center justify-between px-3 py-2 rounded-md border bg-card hover:bg-accent/50 transition-colors">
+      <div className="flex items-center gap-3 flex-1 min-w-0">
         {/* Repo name */}
         <div className="flex-1 min-w-0">
           <a
-            href={`https://github.com/${fullName}`}
+            href={`https://github.com/${fullName}/actions`}
             target="_blank"
             rel="noopener noreferrer"
             className="font-medium hover:underline truncate flex items-center gap-1"

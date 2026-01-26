@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { createFileRoute, redirect, useNavigate, Link } from "@tanstack/react-router"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { getAuthStatus } from "@/lib/auth.server"
 import {
   getProject,
@@ -66,6 +66,7 @@ const COLORS = [
 
 function ProjectDetailPage() {
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const { project: initialProject } = Route.useLoaderData()
   const { id } = Route.useParams()
 
@@ -121,6 +122,8 @@ function ProjectDetailPage() {
     try {
       await updateProject({ data: { id: project.id, name, color } })
       refetch()
+      // Invalidate the projects list so dashboard shows updated name
+      queryClient.invalidateQueries({ queryKey: ["projects"] })
     } finally {
       setIsSaving(false)
     }

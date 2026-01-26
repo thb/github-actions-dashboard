@@ -55,52 +55,53 @@ export function ProjectCard({
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-        <div className="flex items-center gap-3">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 py-3 px-4">
+        <div className="flex items-center gap-2">
           <div
-            className="w-3 h-3 rounded-full"
+            className="w-2.5 h-2.5 rounded-full"
             style={{ backgroundColor: project.color || "#6366f1" }}
           />
-          <CardTitle className="text-xl">{project.name}</CardTitle>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <CardTitle className="text-base font-semibold">{project.name}</CardTitle>
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground ml-2">
             {successCount > 0 && (
-              <span className="flex items-center gap-1 text-green-600 dark:text-green-400">
-                {successCount} passing
+              <span className="text-green-600 dark:text-green-400">
+                ✓{successCount}
               </span>
             )}
             {failureCount > 0 && (
-              <span className="flex items-center gap-1 text-red-600 dark:text-red-400">
-                {failureCount} failing
+              <span className="text-red-600 dark:text-red-400">
+                ✗{failureCount}
               </span>
             )}
             {runningCount > 0 && (
-              <span className="flex items-center gap-1 text-amber-600 dark:text-amber-400">
-                {runningCount} running
+              <span className="text-amber-600 dark:text-amber-400">
+                ●{runningCount}
               </span>
             )}
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           <Button
             variant="ghost"
-            size="icon"
+            size="sm"
+            className="h-7 w-7 p-0"
             onClick={onRefresh}
             disabled={isRefreshing}
           >
             <RefreshCw
-              className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
+              className={`h-3.5 w-3.5 ${isRefreshing ? "animate-spin" : ""}`}
             />
           </Button>
           <Link to="/projects/$id" params={{ id: String(project.id) }}>
-            <Button variant="ghost" size="icon">
-              <Settings className="h-4 w-4" />
+            <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
+              <Settings className="h-3.5 w-3.5" />
             </Button>
           </Link>
         </div>
       </CardHeader>
-      <CardContent className="space-y-2">
+      <CardContent className="space-y-1 px-4 pb-3 pt-0">
         {project.repos.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
+          <div className="text-center py-4 text-muted-foreground text-sm">
             <p>No repositories added yet</p>
             <Link to="/projects/$id" params={{ id: String(project.id) }}>
               <Button variant="link" className="mt-2">
