@@ -5,7 +5,7 @@ import { getAuthStatus } from "@/lib/auth.server"
 import { getProjects, getAllWorkflowRuns, removeRepoFromProject } from "@/lib/projects.server"
 import { ProjectCard } from "@/components/project-card"
 import { Button } from "@/components/ui/button"
-import { Plus, RefreshCw, LogOut, Github } from "lucide-react"
+import { Plus, RefreshCw, LogOut, Github, MessageSquare } from "lucide-react"
 import type { WorkflowRun } from "@/lib/github"
 
 export const Route = createFileRoute("/")({
@@ -89,6 +89,12 @@ function Dashboard() {
               />
               Refresh
             </Button>
+            <Link to="/slack">
+              <Button variant="outline" size="sm">
+                <MessageSquare className="h-4 w-4 mr-2" />
+                Slack
+              </Button>
+            </Link>
             <Link to="/projects/new">
               <Button size="sm">
                 <Plus className="h-4 w-4 mr-2" />

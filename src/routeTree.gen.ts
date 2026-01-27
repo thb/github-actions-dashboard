@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SlackRouteImport } from './routes/slack'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProjectsNewRouteImport } from './routes/projects/new'
@@ -17,6 +18,11 @@ import { Route as ApiAuthLogoutRouteImport } from './routes/api/auth/logout'
 import { Route as ApiAuthLoginRouteImport } from './routes/api/auth/login'
 import { Route as ApiAuthCallbackRouteImport } from './routes/api/auth/callback'
 
+const SlackRoute = SlackRouteImport.update({
+  id: '/slack',
+  path: '/slack',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -56,6 +62,7 @@ const ApiAuthCallbackRoute = ApiAuthCallbackRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/slack': typeof SlackRoute
   '/projects/$id': typeof ProjectsIdRoute
   '/projects/new': typeof ProjectsNewRoute
   '/api/auth/callback': typeof ApiAuthCallbackRoute
@@ -65,6 +72,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/slack': typeof SlackRoute
   '/projects/$id': typeof ProjectsIdRoute
   '/projects/new': typeof ProjectsNewRoute
   '/api/auth/callback': typeof ApiAuthCallbackRoute
@@ -75,6 +83,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/slack': typeof SlackRoute
   '/projects/$id': typeof ProjectsIdRoute
   '/projects/new': typeof ProjectsNewRoute
   '/api/auth/callback': typeof ApiAuthCallbackRoute
@@ -86,6 +95,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/login'
+    | '/slack'
     | '/projects/$id'
     | '/projects/new'
     | '/api/auth/callback'
@@ -95,6 +105,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/login'
+    | '/slack'
     | '/projects/$id'
     | '/projects/new'
     | '/api/auth/callback'
@@ -104,6 +115,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/login'
+    | '/slack'
     | '/projects/$id'
     | '/projects/new'
     | '/api/auth/callback'
@@ -114,6 +126,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LoginRoute: typeof LoginRoute
+  SlackRoute: typeof SlackRoute
   ProjectsIdRoute: typeof ProjectsIdRoute
   ProjectsNewRoute: typeof ProjectsNewRoute
   ApiAuthCallbackRoute: typeof ApiAuthCallbackRoute
@@ -123,6 +136,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/slack': {
+      id: '/slack'
+      path: '/slack'
+      fullPath: '/slack'
+      preLoaderRoute: typeof SlackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -178,6 +198,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LoginRoute: LoginRoute,
+  SlackRoute: SlackRoute,
   ProjectsIdRoute: ProjectsIdRoute,
   ProjectsNewRoute: ProjectsNewRoute,
   ApiAuthCallbackRoute: ApiAuthCallbackRoute,
