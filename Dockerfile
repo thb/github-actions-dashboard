@@ -35,11 +35,14 @@ RUN npm ci --omit=dev
 # Copy built files
 COPY --from=builder /app/.output ./.output
 
-# Create data directory for SQLite
-RUN mkdir -p /data
+# Create data directory for SQLite, owned by the unprivileged `node` user (uid 1000)
+RUN mkdir -p /data && chown node:node /data
 
 ENV NODE_ENV=production
 ENV DATABASE_URL=file:/data/db.sqlite
+
+# Run as non-root (security audit 2026-10-23). The sqlite volume must be owned by uid 1000.
+USER node
 
 EXPOSE 3000
 
